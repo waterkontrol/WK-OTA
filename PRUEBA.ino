@@ -1,22 +1,30 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <Update.h>
+#include <Preferences.h>
 
 // CONFIGURACIÓN WI-FI
 const char* ssid = "Flia. Ramirez";
 const char* password = "M&M1920*";
 
-// ===== GITHUB PAGES - ACTUALIZACIÓN INSTANTÁNEA =====
-String versionURL    = "https://waterkontrol.github.io/WK-OTA/version.txt";
-String firmwareURL   = "https://waterkontrol.github.io/WK-OTA/PRUEBA.ino.esp32.bin";                     
-String versionActual = "1.0";
+// ===== GITHUB PAGES =====
+String versionURL  = "https://waterkontrol.github.io/WK-OTA/version.txt";
+String firmwareURL = "https://waterkontrol.github.io/WK-OTA/PRUEBA.ino.esp32.bin";
 
+Preferences preferencias;
+String versionActual;
 String macAddress;
 unsigned long ultimaVerificacion = 0;
-const unsigned long intervalo = 30000; // 30 segundos
+const unsigned long intervalo = 5000;
 
 void setup() {
   Serial.begin(115200);
+  
+  // ===== INICIAR PREFERENCES =====
+  preferencias.begin("ota", false);
+  
+  // ===== LEER VERSIÓN GUARDADA =====
+  versionActual = preferencias.getString("version", "1.0");
   
   macAddress = WiFi.macAddress();
   macAddress.replace(":", "");
@@ -36,8 +44,8 @@ void loop() {
   if (millis() - ultimaVerificacion >= intervalo) {
     ultimaVerificacion = millis();
     verificarActualizacion();
-    Serial.println("✅ hola funciona");  // ← AHORA SOLO CADA 30 SEGUNDOS
-  }
+    Serial.println("hola");
+ }
 }
 
 void verificarActualizacion() {
@@ -64,16 +72,18 @@ void verificarActualizacion() {
       
       if (v != versionActual && v.length() > 0) {
         Serial.println();
-        Serial.println("🚀 ACTUALIZACIÓN DISPONIBLE: " + versionActual + " → " + v);
+        Serial.println("🚀 ACTUALIZACIÓN: " + versionActual + " → " + v);
         Serial.println("⬇️ Descargando firmware...");
-        realizarOTA(firmwareURL);
+        realizarOTA(firmwareURL, v);
+      } else {
+        Serial.println("✓ Versión " + versionActual + " OK");
       }
     }
   }
   http.end();
 }
 
-void realizarOTA(String url) {
+void realizarOTA(String url, String nuevaVersion) {
   HTTPClient http;
   http.begin(url);
   http.addHeader("Cache-Control", "no-cache");
@@ -90,7 +100,13 @@ void realizarOTA(String url) {
       size_t escrito = Update.writeStream(*cliente);
       
       if (escrito == tamano && Update.end()) {
-        Serial.println("✅ Actualización OK. Reiniciando...");
+        Serial.println("✅ Actualización OK");
+        
+        // ===== GUARDAR VERSIÓN =====
+        preferencias.putString("version", nuevaVersion);
+        Serial.println("✅ Versión guardada: " + nuevaVersion);
+        
+        Serial.println("🔄 Reiniciando...");
         delay(2000);
         ESP.restart();
       }
