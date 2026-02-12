@@ -10,6 +10,7 @@
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
 #include <PubSubClient.h>
+#include <Update.h>
 #include <WiFiClientSecure.h>
 #include <Adafruit_ADS1X15.h>
 
