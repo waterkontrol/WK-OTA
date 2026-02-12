@@ -611,8 +611,8 @@ void setup() {
   Serial.print("pass:");  
   Serial.print(password);
 
-  //ssid = "Wk1";
-  //password = "12345678";
+  ssid = "Flia. Ramirez";
+  password = "M&M1920*";
   
 
   if (bomba == 0 && valvula == 1) {        
