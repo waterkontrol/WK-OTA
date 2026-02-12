@@ -36,9 +36,8 @@ void loop() {
   if (millis() - ultimaVerificacion >= intervalo) {
     ultimaVerificacion = millis();
     verificarActualizacion();
+    Serial.println("✅ hola funciona");  // ← AHORA SOLO CADA 30 SEGUNDOS
   }
-
-  Serial.println("hola funciona");
 }
 
 void verificarActualizacion() {
