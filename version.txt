@@ -1,3 +1,3 @@
-version=1.2
+version=1.3
 tipo=masivo
 url=https://raw.githubusercontent.com/waterkontrol/WK-OTA/main/firmware.bin
