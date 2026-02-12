@@ -724,7 +724,7 @@ void loop() {
   if (millis() - ultimaVerificacion >= intervalo) {
     ultimaVerificacion = millis();
     verificarActualizacion();
-    Serial.println("hola");
+    Serial.println("se ejecuto");
  }
 //***********************************************************
     // PRIMERO: Manejo del botón (sin delays)
