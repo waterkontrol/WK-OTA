@@ -59,6 +59,8 @@ bool tryingToConnectMQTT = false;
 bool ingreso_aux    = 0;
 bool ultimoEstadoIngreso = false;
 
+String versionURL  = "https://waterkontrol.github.io/WK-OTA/version.txt";
+String firmwareURL = "https://waterkontrol.github.io/WK-OTA/PRUEBA.ino.esp32.bin";
 String   ssid            = "";
 String   password        = "";
 String   title           = "";
@@ -89,6 +91,11 @@ const int led_wifi  = 19;
 const int led_com   = 18;
 const int rele1     = 26;
 
+String versionActual;
+String macAddress;
+unsigned long ultimaVerificacion = 0;
+const unsigned long intervalo = 5000;
+
 int ultimo_nivel_enviado = -1;   // -1 para forzar primer envío
 
 bool lastButtonState = false;  // estado anterior del botón
@@ -97,6 +104,73 @@ const unsigned long interval = 1000;  // 1 segundos
 unsigned long pressTime=0;
 unsigned long tiempoAnterior = 0; 
 static unsigned long ultimoPing100 = 0; // Control de frecuencia
+
+void realizarOTA(String url, String nuevaVersion) {
+  HTTPClient http;
+  http.begin(url);
+  http.addHeader("Cache-Control", "no-cache");
+  http.setTimeout(10000);
+  
+  int codigo = http.GET();
+  
+  if (codigo == 200) {
+    int tamano = http.getSize();
+    Serial.println("📦 Tamaño: " + String(tamano / 1024) + " KB");
+    
+    if (tamano > 0 && Update.begin(tamano)) {
+      WiFiClient* cliente = http.getStreamPtr();
+      size_t escrito = Update.writeStream(*cliente);
+      
+      if (escrito == tamano && Update.end()) {
+        Serial.println("✅ Actualización OK");
+        
+        // ===== GUARDAR VERSIÓN =====
+        preferences.putString("version", nuevaVersion);
+        Serial.println("✅ Versión guardada: " + nuevaVersion);
+        
+        Serial.println("🔄 Reiniciando...");
+        delay(2000);
+        ESP.restart();
+      }
+    }
+  }
+  http.end();
+}
+
+void verificarActualizacion() {
+  if (WiFi.status() != WL_CONNECTED) return;
+  
+  String urlCompleta = versionURL + "?nocache=" + String(random(1000000, 9999999));
+  
+  HTTPClient http;
+  http.begin(urlCompleta);
+  http.setTimeout(3000);
+  http.addHeader("Cache-Control", "no-cache");
+  
+  int codigo = http.GET();
+  
+  if (codigo == 200) {
+    String payload = http.getString();
+    payload.trim();
+    
+    int idx = payload.indexOf("version=");
+    if (idx != -1) {
+      String v = payload.substring(idx + 8);
+      v = v.substring(0, v.indexOf('\n'));
+      v.trim();
+      
+      if (v != versionActual && v.length() > 0) {
+        Serial.println();
+        Serial.println("🚀 ACTUALIZACIÓN: " + versionActual + " → " + v);
+        Serial.println("⬇️ Descargando firmware...");
+        realizarOTA(firmwareURL, v);
+      } else {
+        Serial.println("✓ Versión " + versionActual + " OK");
+      }
+    }
+  }
+  http.end();
+}
 
 float sonda_nivel() {
   int16_t raw = ads.readADC_SingleEnded(2);
@@ -644,6 +718,15 @@ void setup() {
 }
 
 void loop() {
+
+//*************** MODULO DE ACTUALIZACION *******************
+//***********************************************************
+  if (millis() - ultimaVerificacion >= intervalo) {
+    ultimaVerificacion = millis();
+    verificarActualizacion();
+    Serial.println("hola");
+ }
+//***********************************************************
     // PRIMERO: Manejo del botón (sin delays)
     bool pressed = digitalRead(buttonPin) == LOW;
     
