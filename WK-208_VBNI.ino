@@ -106,6 +106,7 @@ unsigned long tiempoAnterior = 0;
 static unsigned long ultimoPing100 = 0; // Control de frecuencia
 
 void realizarOTA(String url, String nuevaVersion) {
+  Serial.println("si entra");
   HTTPClient http;
   http.begin(url);
   http.addHeader("Cache-Control", "no-cache");
@@ -604,12 +605,15 @@ void setup() {
       valvula       = preferences.getBool   ("valvula"       , "");
       bomba         = preferences.getBool   ("bomba"         , "");
       nivel_deseado = preferences.getFloat  ("nivel_deseado" , 500.0);
+      versionActual = preferences.getString ("version"       , "1.0");
   preferences.end();
 
   Serial.print("ssid:");
   Serial.println(ssid);
   Serial.print("pass:");  
   Serial.print(password);
+  Serial.println("version actual");  
+  Serial.print(versionActual);
 
   ssid = "Flia. Ramirez";
   password = "M&M1920*";
@@ -724,7 +728,7 @@ void loop() {
   if (millis() - ultimaVerificacion >= intervalo) {
     ultimaVerificacion = millis();
     verificarActualizacion();
-    Serial.println("se ejecuto");
+    Serial.println("se ejecuto ahora");
  }
 //***********************************************************
     // PRIMERO: Manejo del botón (sin delays)
