@@ -161,29 +161,109 @@ void verificarActualizacion() {
   if (codigo == 200) {
     String payload = http.getString();
     payload.trim();
-    Serial.print("EL CONTENIDO DEL TXT ES: ");
+    Serial.println("📄 CONTENIDO DEL TXT:");
     Serial.println(payload);
     
-    int idx = payload.indexOf("version=");
-    if (idx != -1) {
-      String v = payload.substring(idx + 8);
-      v = v.substring(0, v.indexOf('\n'));
-      v.trim();
+    // ===== VARIABLES PARA GUARDAR LO QUE VIENE DEL TXT =====
+    String versionRemota = "";
+    String tipo = "";
+    String macDestino = "";
+    
+    // ===== PARSEAR LÍNEA POR LÍNEA =====
+    int inicio = 0;
+    int fin;
+    
+    while ((fin = payload.indexOf('\n', inicio)) != -1) {
+      String linea = payload.substring(inicio, fin);
+      linea.trim();
       
-      if (v != versionActual && v.length() > 0) {
-        Serial.println();
-        Serial.println("🚀 ACTUALIZACIÓN: " + versionActual + " → " + v);
-        Serial.println("⬇️ Descargando firmware...");
+      if (linea.startsWith("version=")) {
+        versionRemota = linea.substring(8);
+      }
+      else if (linea.startsWith("tipo=")) {
+        tipo = linea.substring(5);
+      }
+      else if (linea.startsWith("mac=")) {
+        macDestino = linea.substring(4);
+        macDestino.replace(":", "");
+        macDestino.replace("-", "");
+        macDestino.toLowerCase();
+        macDestino.trim();
+      }
+      
+      inicio = fin + 1;
+    }
+    
+    // Última línea (si no termina en \n)
+    if (inicio < payload.length()) {
+      String linea = payload.substring(inicio);
+      linea.trim();
+      
+      if (linea.startsWith("version=")) versionRemota = linea.substring(8);
+      else if (linea.startsWith("tipo=")) tipo = linea.substring(5);
+      else if (linea.startsWith("mac=")) {
+        macDestino = linea.substring(4);
+        macDestino.replace(":", "");
+        macDestino.replace("-", "");
+        macDestino.toLowerCase();
+        macDestino.trim();
+      }
+    }
+    
+    // ===== VERIFICACIÓN DE MAC =====
+    bool macCoincide = false;
+    
+    if (macDestino.length() > 0) {
+      if (macDestino == macAddress) {
+        macCoincide = true;
+        Serial.println("✅ MAC COINCIDE: " + macDestino);
+      } else {
+        Serial.println("❌ MAC INCORRECTA");
+        Serial.println("   MAC del dispositivo: " + macAddress);
+        Serial.println("   MAC requerida      : " + macDestino);
+        http.end();
+        return;  // 🛑 SALIR, NO ACTUALIZAR
+      }
+    } else {
+      Serial.println("⚠️ No hay MAC en el TXT, se ignora validación");
+      macCoincide = true;  // Si no viene MAC, permitir
+    }
+    
+    // ===== VERIFICACIÓN DE VERSIÓN =====
+    if (versionRemota.length() > 0 && versionRemota != versionActual) {
+      
+      // ===== VERIFICAR TIPO DE ACTUALIZACIÓN =====
+      if (tipo == "masivo") {
+        Serial.println("📢 ACTUALIZACIÓN MASIVA - Todos los dispositivos");
         
-        // ===== ACTIVAR BANDERA =====
-        actualizando = true;
+      } else if (tipo == "dedicado") {
+        if (!macCoincide) {
+          Serial.println("⏭️ Actualización dedicada para OTRO dispositivo");
+          http.end();
+          return;
+        }
+        Serial.println("🎯 ACTUALIZACIÓN DEDICADA - Solo este dispositivo");
         
-        // ===== EJECUTAR OTA =====
-        realizarOTA(firmwareURL, v);
-        
-        // ===== SI FALLA, DESACTIVAR BANDERA =====
-        actualizando = false;
-        Serial.println("❌ OTA FALLÓ - Continuando...");
+      } else {
+        Serial.println("⚠️ Tipo de actualización no reconocido: " + tipo);
+        http.end();
+        return;
+      }
+      
+      // ===== EJECUTAR OTA =====
+      Serial.println("🚀 ACTUALIZACIÓN: " + versionActual + " → " + versionRemota);
+      Serial.println("⬇️ Descargando firmware...");
+      
+      actualizando = true;
+      realizarOTA(firmwareURL, versionRemota);
+      actualizando = false;
+      Serial.println("❌ OTA FALLÓ - Continuando...");
+      
+    } else {
+      if (versionRemota.length() == 0) {
+        Serial.println("⚠️ No se encontró 'version=' en el TXT");
+      } else {
+        Serial.println("✓ Ya tienes la última versión: " + versionActual);
       }
     }
   }
