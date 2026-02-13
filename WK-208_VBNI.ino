@@ -108,7 +108,7 @@ unsigned long tiempoAnterior = 0;
 static unsigned long ultimoPing100 = 0; // Control de frecuencia
 
 void realizarOTA(String url, String nuevaVersion) {
-  Serial.println("si entra");
+  //Serial.println("si entra");
   HTTPClient http;
   http.begin(url);
   http.addHeader("Cache-Control", "no-cache");
@@ -128,10 +128,10 @@ void realizarOTA(String url, String nuevaVersion) {
         Serial.println("✅ Actualización OK");
         
         // ===== GUARDAR VERSIÓN =====
-        
+        versionActual = nuevaVersion;
         preferences.begin("ota", false);
           preferences.putString("nueva_version"   , nuevaVersion); 
-          preferences.putString("version_actual"  , nuevaVersion);// ✅ GUARDA 1.7 EN "wifi"
+          preferences.putString("version_actual"  , versionActual);// ✅ GUARDA 1.7 EN "wifi"
         preferences.end();
 
         
