@@ -161,6 +161,8 @@ void verificarActualizacion() {
   if (codigo == 200) {
     String payload = http.getString();
     payload.trim();
+    Serial.print("EL CONTENIDO DEL TXT ES: ");
+    Serial.println(payload);
     
     int idx = payload.indexOf("version=");
     if (idx != -1) {
