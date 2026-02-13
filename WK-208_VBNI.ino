@@ -60,7 +60,8 @@ bool ingreso_aux    = 0;
 bool ultimoEstadoIngreso = false;
 
 String versionURL  = "https://waterkontrol.github.io/WK-OTA/version.txt";
-String firmwareURL = "https://waterkontrol.github.io/WK-OTA/PRUEBA.ino.esp32.bin";
+String firmwareURL = "https://waterkontrol.github.io/WK-OTA/WK-208_VBNI.ino.esp32.bin";
+
 String   ssid            = "";
 String   password        = "";
 String   title           = "";
@@ -111,7 +112,7 @@ void realizarOTA(String url, String nuevaVersion) {
   HTTPClient http;
   http.begin(url);
   http.addHeader("Cache-Control", "no-cache");
-  http.setTimeout(30000);
+  http.setTimeout(60000);
   
   int codigo = http.GET();
   
@@ -127,7 +128,11 @@ void realizarOTA(String url, String nuevaVersion) {
         Serial.println("✅ Actualización OK");
         
         // ===== GUARDAR VERSIÓN =====
-        preferences.putString("version", nuevaVersion);
+
+        preferences.begin("ota", false);
+          preferences.putString("version", nuevaVersion);  // ✅ GUARDA 1.7 EN "wifi"
+        preferences.end();
+                
         Serial.println("✅ Versión guardada: " + nuevaVersion);
         
         Serial.println("🔄 Reiniciando...");
@@ -602,6 +607,9 @@ void setup() {
   pinMode(rele_esp  , OUTPUT);
   pinMode(rele1     , OUTPUT);
 
+  preferences.begin("ota", false);
+      versionActual = preferences.getString("version", "1.0");
+  preferences.end();
 
   // Recuperar credenciales y topics de Preferences
   preferences.begin("wifi", true);
@@ -612,8 +620,7 @@ void setup() {
       topic_url     = preferences.getString ("topic_url"     , "");
       valvula       = preferences.getBool   ("valvula"       , "");
       bomba         = preferences.getBool   ("bomba"         , "");
-      nivel_deseado = preferences.getFloat  ("nivel_deseado" , 500.0);
-      versionActual = preferences.getString ("version"       , "1.0");
+      nivel_deseado = preferences.getFloat  ("nivel_deseado" , 500.0);      
   preferences.end();
 
   Serial.print("ssid:");
