@@ -108,7 +108,7 @@ unsigned long tiempoAnterior = 0;
 static unsigned long ultimoPing100 = 0; // Control de frecuencia
 
 void realizarOTA(String url, String nuevaVersion) {
-  Serial.println("si entra");
+  //Serial.println("si entra");
   HTTPClient http;
   http.begin(url);
   http.addHeader("Cache-Control", "no-cache");
@@ -129,13 +129,9 @@ void realizarOTA(String url, String nuevaVersion) {
         
         // ===== GUARDAR VERSIÓN =====
         versionActual = nuevaVersion;
-        /*preferences.begin("ota", false);
+        preferences.begin("ota", false);
           preferences.putString("nueva_version"   , nuevaVersion); 
           preferences.putString("version_actual"  , versionActual);// ✅ GUARDA 1.7 EN "wifi"
-        preferences.end();*/
-
-        preferences.begin("ota", false);
-          preferences.putString("version_actual", nuevaVersion);  // ✅ GUARDA "2.8" en version_actual
         preferences.end();
 
         
@@ -153,40 +149,45 @@ void realizarOTA(String url, String nuevaVersion) {
 void verificarActualizacion() {
   if (WiFi.status() != WL_CONNECTED) return;
   
+  String urlCompleta = versionURL + "?nocache=" + String(random(1000000, 9999999));
+  
   HTTPClient http;
-  http.begin(versionURL + "?nocache=" + String(random(1000000, 9999999)));
+  http.begin(urlCompleta);
   http.setTimeout(3000);
   http.addHeader("Cache-Control", "no-cache");
   
-  if (http.GET() != 200) { http.end(); return; }
+  int codigo = http.GET();
   
-  String p = http.getString(); http.end();
-  p.trim();
-  
-  String v = (p.indexOf("version=") != -1) ? p.substring(p.indexOf("version=")+8, p.indexOf('\n', p.indexOf("version="))) : "";
-  String t = (p.indexOf("tipo=")    != -1) ? p.substring(p.indexOf("tipo=")+5,    p.indexOf('\n', p.indexOf("tipo=")))    : "";
-  String m = (p.indexOf("mac=")     != -1) ? p.substring(p.indexOf("mac=")+4,     p.indexOf('\n', p.indexOf("mac=")))     : "";
-   
-  v.trim(); t.trim(); 
-  m.replace(":", ""); m.replace("-", ""); m.toLowerCase(); m.trim();
-
-        macAddress = WiFi.macAddress();
-        macAddress.replace(":", "");
-        macAddress.toLowerCase();
-        Serial.println (v);
-        Serial.println (t);
-        Serial.println (m);
-        Serial.println (macAddress);
-  
-  // ÚNICA CONDICIÓN DE ACTUALIZACIÓN
-  if ((m.isEmpty() || m == macAddress) && (t == "masivo" || t == "dedicado") && !v.isEmpty() && v != versionActual) {
-    Serial.printf("\n🚀 %s → %s\n", versionActual.c_str(), v.c_str());
-    actualizando = true;
-    realizarOTA(firmwareURL, v);
-    actualizando = false;
-  } else {
-    Serial.println("❌ Datos incorrectos o ya actualizado");
+  if (codigo == 200) {
+    String payload = http.getString();
+    payload.trim();
+    Serial.print("EL CONTENIDO DEL TXT ES: ");
+    Serial.println(payload);
+    
+    int idx = payload.indexOf("version=");
+    if (idx != -1) {
+      String v = payload.substring(idx + 8);
+      v = v.substring(0, v.indexOf('\n'));
+      v.trim();
+      
+      if (v != versionActual && v.length() > 0) {
+        Serial.println();
+        Serial.println("🚀 ACTUALIZACIÓN: " + versionActual + " → " + v);
+        Serial.println("⬇️ Descargando firmware...");
+        
+        // ===== ACTIVAR BANDERA =====
+        actualizando = true;
+        
+        // ===== EJECUTAR OTA =====
+        realizarOTA(firmwareURL, v);
+        
+        // ===== SI FALLA, DESACTIVAR BANDERA =====
+        actualizando = false;
+        Serial.println("❌ OTA FALLÓ - Continuando...");
+      }
+    }
   }
+  http.end();
 }
 
 float sonda_nivel() {
