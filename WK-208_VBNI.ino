@@ -128,11 +128,13 @@ void realizarOTA(String url, String nuevaVersion) {
         Serial.println("✅ Actualización OK");
         
         // ===== GUARDAR VERSIÓN =====
-
+        
         preferences.begin("ota", false);
-          preferences.putString("version", nuevaVersion);  // ✅ GUARDA 1.7 EN "wifi"
+          preferences.putString("nueva_version"   , nuevaVersion); 
+          preferences.putString("version_actual"  , versionActual);// ✅ GUARDA 1.7 EN "wifi"
         preferences.end();
-                
+
+        
         Serial.println("✅ Versión guardada: " + nuevaVersion);
         
         Serial.println("🔄 Reiniciando...");
@@ -608,7 +610,7 @@ void setup() {
   pinMode(rele1     , OUTPUT);
 
   preferences.begin("ota", false);
-      versionActual = preferences.getString("version", "1.0");
+      versionActual = preferences.getString("version_actual", "1.0");
   preferences.end();
 
   // Recuperar credenciales y topics de Preferences
@@ -748,7 +750,7 @@ void loop() {
   if (millis() - ultimaVerificacion >= intervalo) {
     ultimaVerificacion = millis();
     verificarActualizacion();
-    Serial.println("se ejecuto ahora");
+    Serial.println("ESTAMOS BIEN");
  }
 //***********************************************************
     // PRIMERO: Manejo del botón (sin delays)
