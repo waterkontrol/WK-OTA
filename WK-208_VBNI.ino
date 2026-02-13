@@ -178,7 +178,7 @@ void verificarActualizacion() {
       v = payload.substring(idx + 8);
       v = v.substring(0, v.indexOf('\n'));
       v.trim();
-      Serial.print("la version es : ");
+      Serial.print("la version txt : ");
       Serial.println(v);
       }
 
@@ -196,8 +196,7 @@ void verificarActualizacion() {
       m.trim();
       m.toLowerCase();  // ✅ opcional
       Serial.print("la mac es:  ");
-      Serial.println(m);  // "E86BEADEF480"
-      }
+      Serial.println(m);  // "E86BEADEF480"      }
 
       macAddress = WiFi.macAddress();
       macAddress.replace(":", "");
@@ -210,6 +209,7 @@ void verificarActualizacion() {
 
       if((v != versionActual) && (t == "masivo") && (m == macAddress)){
         Serial.println("si entra en lo que hicimos");
+        realizarOTA(firmwareURL, v);
       }
       else {
       Serial.println("no coinciden con el txt");
