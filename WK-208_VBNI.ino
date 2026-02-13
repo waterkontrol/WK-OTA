@@ -164,30 +164,30 @@ void verificarActualizacion() {
   if (codigo == 200) {
     String payload = http.getString();
     payload.trim();
-    Serial.print("EL CONTENIDO DEL TXT ES: ");
-    Serial.println(payload);
+    //Serial.print("EL CONTENIDO DEL TXT ES: ");
+    //Serial.println(payload);
     
     int idx  = payload.indexOf("version=");
     int tipo = payload.indexOf("tipo=");
     int mac  = payload.indexOf("mac=");
-      Serial.println(idx);
-      Serial.println(tipo);
-      Serial.println(mac);
+      //Serial.println(idx);
+      //Serial.println(tipo);
+      //Serial.println(mac);
 
       if (idx != -1) {
       v = payload.substring(idx + 8);
       v = v.substring(0, v.indexOf('\n'));
       v.trim();
-      Serial.print("la version txt : ");
-      Serial.println(v);
+      //Serial.print("la version txt : ");
+      //Serial.println(v);
       }
 
       if (tipo != -1) {
       t = payload.substring(tipo + 5);   // ✅ "tipo=" = 5 caracteres
       t = t.substring(0, t.indexOf('\n'));
       t.trim();
-      Serial.print("tipo:  ");
-      Serial.println(t);  // "masivo"
+      //Serial.print("tipo:  ");
+      //Serial.println(t);  // "masivo"
     }
 
       if (mac != -1) {
@@ -195,21 +195,21 @@ void verificarActualizacion() {
       m = m.substring(0, m.indexOf('\n'));
       m.trim();
       m.toLowerCase();  // ✅ opcional
-      Serial.print("la mac es:  ");
-      Serial.println(m);  // "E86BEADEF480"
+      //Serial.print("la mac es:  ");
+      //Serial.println(m);  // "E86BEADEF480"
       }
 
       macAddress = WiFi.macAddress();
       macAddress.replace(":", "");
       macAddress.toLowerCase();
-      Serial.print("MAC dispositivo: ");
-      Serial.println(macAddress);  // 👈 DEBE MOSTRAR ALGO
+      //Serial.print("MAC dispositivo: ");
+      //Serial.println(macAddress);  // 👈 DEBE MOSTRAR ALGO
 
-      Serial.print("VERSION ACTUAL ES: ");
-      Serial.println(versionActual);  // 👈 DEBE MOSTRAR ALGO
+      //Serial.print("VERSION ACTUAL ES: ");
+      //Serial.println(versionActual);  // 👈 DEBE MOSTRAR ALGO
 
       if((v != versionActual) && (t == "masivo") && (m == macAddress)){
-        Serial.println("si entra en lo que hicimos");
+        //Serial.println("si entra en lo que hicimos");
         realizarOTA(firmwareURL, v);
       }
       else {
