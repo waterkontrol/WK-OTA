@@ -750,7 +750,7 @@ void loop() {
   if (millis() - ultimaVerificacion >= intervalo) {
     ultimaVerificacion = millis();
     verificarActualizacion();
-    Serial.println("ESTAMOS PROBANDO");
+    Serial.println("ahora si, estamos super bien");
  }
 //***********************************************************
     // PRIMERO: Manejo del botón (sin delays)
