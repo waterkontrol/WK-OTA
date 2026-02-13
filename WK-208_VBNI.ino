@@ -479,6 +479,11 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
      //Serial.print(nivel_deseado);    
   }
 
+   if (doc.containsKey("admin_version")) {        
+    String respuesta = "{\"version\":" + String(versionActual) + "}";    
+    client.publish(topicOut.c_str(), respuesta.c_str());    
+}
+
   if(message == "admin_reset"){
     ESP.restart();
   } 
