@@ -1,3 +1,3 @@
-version=2.9
+version=1.2
 tipo=masivo
-mac=E86BEADEF480
+mac=E86BEADEF480-

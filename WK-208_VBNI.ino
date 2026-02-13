@@ -74,7 +74,10 @@ String topicIn     = "";
 String topicOut    = "";
 String bombaStr    = "";
 String valvulaStr  = "";
-    
+
+String v = "";
+String t = "";
+String m = "";
 
 byte  a             = 0;
 bool  bomba         = 0;
@@ -164,7 +167,55 @@ void verificarActualizacion() {
     Serial.print("EL CONTENIDO DEL TXT ES: ");
     Serial.println(payload);
     
-    int idx = payload.indexOf("version=");
+    int idx  = payload.indexOf("version=");
+    int tipo = payload.indexOf("tipo=");
+    int mac  = payload.indexOf("mac=");
+      Serial.println(idx);
+      Serial.println(tipo);
+      Serial.println(mac);
+
+      if (idx != -1) {
+      v = payload.substring(idx + 8);
+      v = v.substring(0, v.indexOf('\n'));
+      v.trim();
+      Serial.print("la version es : ");
+      Serial.println(v);
+      }
+
+      if (tipo != -1) {
+      t = payload.substring(tipo + 5);   // ✅ "tipo=" = 5 caracteres
+      t = t.substring(0, t.indexOf('\n'));
+      t.trim();
+      Serial.print("tipo:  ");
+      Serial.println(t);  // "masivo"
+    }
+
+      if (mac != -1) {
+      m = payload.substring(mac + 4);    // ✅ "mac=" = 4 caracteres
+      m = m.substring(0, m.indexOf('\n'));
+      m.trim();
+      m.toLowerCase();  // ✅ opcional
+      Serial.print("la mac es:  ");
+      Serial.println(m);  // "E86BEADEF480"
+      }
+
+      macAddress = WiFi.macAddress();
+      macAddress.replace(":", "");
+      macAddress.toLowerCase();
+      Serial.print("MAC dispositivo: ");
+      Serial.println(macAddress);  // 👈 DEBE MOSTRAR ALGO
+
+      Serial.print("VERSION ACTUAL ES: ");
+      Serial.println(versionActual);  // 👈 DEBE MOSTRAR ALGO
+
+      if((v != versionActual) && (t == "masivo") && (m == macAddress)){
+        Serial.println("si entra en lo que hicimos");
+      }
+      else {
+      Serial.println("no coinciden con el txt");
+      }
+//================================  QUEDAMOS ACA =========================      
+    
     if (idx != -1) {
       String v = payload.substring(idx + 8);
       v = v.substring(0, v.indexOf('\n'));
