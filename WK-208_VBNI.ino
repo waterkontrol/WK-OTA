@@ -131,7 +131,7 @@ void realizarOTA(String url, String nuevaVersion) {
         
         preferences.begin("ota", false);
           preferences.putString("nueva_version"   , nuevaVersion); 
-          preferences.putString("version_actual"  , versionActual);// ✅ GUARDA 1.7 EN "wifi"
+          preferences.putString("version_actual"  , nuevaVersion);// ✅ GUARDA 1.7 EN "wifi"
         preferences.end();
 
         
@@ -750,7 +750,7 @@ void loop() {
   if (millis() - ultimaVerificacion >= intervalo) {
     ultimaVerificacion = millis();
     verificarActualizacion();
-    Serial.println("ESTAMOS BIEN");
+    Serial.println("ESTAMOS PROBANDO");
  }
 //***********************************************************
     // PRIMERO: Manejo del botón (sin delays)
