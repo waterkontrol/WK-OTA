@@ -162,9 +162,17 @@ void verificarActualizacion() {
   String v = (p.indexOf("version=") != -1) ? p.substring(p.indexOf("version=")+8, p.indexOf('\n', p.indexOf("version="))) : "";
   String t = (p.indexOf("tipo=")    != -1) ? p.substring(p.indexOf("tipo=")+5,    p.indexOf('\n', p.indexOf("tipo=")))    : "";
   String m = (p.indexOf("mac=")     != -1) ? p.substring(p.indexOf("mac=")+4,     p.indexOf('\n', p.indexOf("mac=")))     : "";
-  
+   
   v.trim(); t.trim(); 
   m.replace(":", ""); m.replace("-", ""); m.toLowerCase(); m.trim();
+
+        macAddress = WiFi.macAddress();
+        macAddress.replace(":", "");
+        macAddress.toLowerCase();
+        Serial.println (v);
+        Serial.println (t);
+        Serial.println (m);
+        Serial.println (macAddress);
   
   // ÚNICA CONDICIÓN DE ACTUALIZACIÓN
   if ((m.isEmpty() || m == macAddress) && (t == "masivo" || t == "dedicado") && !v.isEmpty() && v != versionActual) {
