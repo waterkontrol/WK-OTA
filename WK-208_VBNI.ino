@@ -95,6 +95,7 @@ String versionActual;
 String macAddress;
 unsigned long ultimaVerificacion = 0;
 const unsigned long intervalo = 5000;
+bool actualizando = false;  
 
 int ultimo_nivel_enviado = -1;   // -1 para forzar primer envío
 
@@ -110,7 +111,7 @@ void realizarOTA(String url, String nuevaVersion) {
   HTTPClient http;
   http.begin(url);
   http.addHeader("Cache-Control", "no-cache");
-  http.setTimeout(10000);
+  http.setTimeout(30000);
   
   int codigo = http.GET();
   
@@ -164,9 +165,16 @@ void verificarActualizacion() {
         Serial.println();
         Serial.println("🚀 ACTUALIZACIÓN: " + versionActual + " → " + v);
         Serial.println("⬇️ Descargando firmware...");
+        
+        // ===== ACTIVAR BANDERA =====
+        actualizando = true;
+        
+        // ===== EJECUTAR OTA =====
         realizarOTA(firmwareURL, v);
-      } else {
-        Serial.println("✓ Versión " + versionActual + " OK");
+        
+        // ===== SI FALLA, DESACTIVAR BANDERA =====
+        actualizando = false;
+        Serial.println("❌ OTA FALLÓ - Continuando...");
       }
     }
   }
@@ -611,9 +619,9 @@ void setup() {
   Serial.print("ssid:");
   Serial.println(ssid);
   Serial.print("pass:");  
-  Serial.print(password);
-  Serial.println("version actual");  
-  Serial.print(versionActual);
+  Serial.println(password);
+  Serial.print("version actual:");  
+  Serial.println(versionActual);
 
   ssid = "Flia. Ramirez";
   password = "M&M1920*";
@@ -722,6 +730,11 @@ void setup() {
 }
 
 void loop() {
+
+   if (actualizando) {
+    delay(10);        // Pequeña pausa
+    return;           // 🛑 SALIR, NO HACER NADA MÁS
+  }
 
 //*************** MODULO DE ACTUALIZACION *******************
 //***********************************************************
