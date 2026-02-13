@@ -196,7 +196,8 @@ void verificarActualizacion() {
       m.trim();
       m.toLowerCase();  // ✅ opcional
       Serial.print("la mac es:  ");
-      Serial.println(m);  // "E86BEADEF480"      }
+      Serial.println(m);  // "E86BEADEF480"
+      }
 
       macAddress = WiFi.macAddress();
       macAddress.replace(":", "");
