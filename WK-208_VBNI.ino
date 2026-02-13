@@ -216,7 +216,7 @@ void verificarActualizacion() {
       }
 //================================  QUEDAMOS ACA =========================      
     
-    if (idx != -1) {
+   /* if (idx != -1) {
       String v = payload.substring(idx + 8);
       v = v.substring(0, v.indexOf('\n'));
       v.trim();
@@ -236,7 +236,7 @@ void verificarActualizacion() {
         actualizando = false;
         Serial.println("❌ OTA FALLÓ - Continuando...");
       }
-    }
+    }*/
   }
   http.end();
 }
