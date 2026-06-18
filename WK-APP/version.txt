@@ -1,0 +1,4 @@
+version=2.5
+tipo=masivo
+mac=E86BEADEF6C4
+    
