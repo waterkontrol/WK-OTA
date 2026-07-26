@@ -1,4 +1,4 @@
 version=7.2
 tipo=masivo
 mac=D8BC38FD8F98
-ws=on
+ws=1
