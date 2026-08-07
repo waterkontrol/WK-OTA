@@ -1,4 +1,4 @@
 version=7.1
 tipo=masivo
-mac=E86BEADEF480
+mac=65656577
 ws=0
