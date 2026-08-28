@@ -1,4 +1,4 @@
-version=1.6
+version=1.7
 tipo=masivo
 mac=D8BC38FBC62C
 ws=0
