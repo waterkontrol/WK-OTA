@@ -1,4 +1,4 @@
-version=1.5
+version=1.6
 tipo=masivo
 mac=E86BEADEE5BC
 ws=0
