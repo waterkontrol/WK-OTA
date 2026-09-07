@@ -1,4 +1,4 @@
-version=1.9
+version=1.5
 tipo=masivo
-mac=58565214789
+mac=D8BC38FBC62C
 ws=0
