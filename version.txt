@@ -1,4 +1,4 @@
 version=2.1
 tipo=masivo
-mac=E86BEADEF480
+mac=52525252525
 ws=0
