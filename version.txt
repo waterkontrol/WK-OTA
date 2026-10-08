@@ -1,4 +1,4 @@
-version=2.6
+version=2.7
 tipo=masivo
-mac=jgjgjgj52525
+mac=E86BEADEF480
 ws=0
